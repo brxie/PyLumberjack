@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import socket
 import ssl
 from struct import pack
@@ -5,7 +6,7 @@ import zlib
 
 
         
-class Lumberjack(object):
+class Client(object):
     
     def __init__(self, port, address, sslCert, sslEnabled=True):
         self.opts = {
@@ -66,7 +67,7 @@ class Lumberjack(object):
     
 
 if __name__ == '__main__':
-    l = Lumberjack(port = 8662,
+    l = Client(port = 8662,
                address = '127.0.0.1',
                sslCert = '/certs/cert.crt'
             )
