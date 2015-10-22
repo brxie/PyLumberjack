@@ -20,4 +20,4 @@ lumberjack.write({"line":"hello"})
 ```
 
 #### License
-PyLumberjack is licensed under the MIT Open Source license. http://opensource.org/licenses/MIT
+PyLumberjack is licensed under the Apache License 2.0.
