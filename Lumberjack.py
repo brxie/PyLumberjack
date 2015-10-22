@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import socket
 import ssl
-from struct import pack
+from struct import pack, unpack
 import zlib
 
 
