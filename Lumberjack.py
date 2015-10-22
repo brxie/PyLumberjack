@@ -68,11 +68,12 @@ class Client(object):
         return compress
 
     def __ack(self):
-        self.socket.recv(1) # version. It need to be received before ACK type
-        atype, = unpack('B', self.socket.recv(1))
-        if atype != 0x41:
+        self.socket.recv(1) # version. Must be received before ACK type
+        atype = self.socket.recv(1)
+        ackOK = lambda utype : False if not atype or unpack('B', utype) != 0x41 else True
+        if not ackOK:
             raise ConnectionException('ACK not recived')
-        self.socket.recv(4) # last ACK. It need to be received after ACK type
+        self.socket.recv(4) # last ACK. Must be received after ACK type
 
 if __name__ == '__main__':
     l = Client(port = 8662,
