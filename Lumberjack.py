@@ -5,7 +5,9 @@ from struct import pack
 import zlib
 
 
-        
+class ConnectionException(Exception):
+    pass
+
 class Client(object):
     
     def __init__(self, port, address, sslCert, sslEnabled=True):
@@ -32,7 +34,8 @@ class Client(object):
         payload = self.__encode(elements)
         payload = self.__compress(payload)
         self.socket.write(payload)
-        
+        self.__ack()
+
     def __encode(self, elements):
         frame = [0x31, 0x44, 0x00]
         packParam = '>BBi'
@@ -63,8 +66,12 @@ class Client(object):
         compSize = ( len(compPayld) )
         compress = pack('>BBi%ss' % compSize, 0x31, 0x43, compSize, compPayld)
         return compress
-        
-    
+
+    def __ack(self):
+        aver, atype = unpack('BB', self.socket.recv(2))
+        if atype != 0x41:
+            raise ConnectionException('ACK not recived')
+
 
 if __name__ == '__main__':
     l = Client(port = 8662,
