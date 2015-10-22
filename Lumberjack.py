@@ -33,7 +33,12 @@ class Client(object):
         self.__sendWindowSize()
         payload = self.__encode(elements)
         payload = self.__compress(payload)
-        self.socket.write(payload)
+
+        # SSL and TLS channels must be segmented into records of no more than 16Kb
+        chunker = lambda payload, segSize=8192 : [payload[i:i+segSize] for i in range(0, len(payload), segSize)]
+        for segment in chunker(payload):
+            self.socket.write(segment)
+
         self.__ack()
 
     def __encode(self, elements):
