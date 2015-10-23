@@ -31,7 +31,11 @@ class Client(object):
         if not self.opts['sslEnabled']:
             self.socket = tcp_socket
         else:
-            sslSocket = ssl.wrap_socket(sock=tcp_socket, ca_certs=self.opts['sslCert'], cert_reqs=ssl.CERT_REQUIRED)
+            sslSocket = ssl.wrap_socket(sock=tcp_socket,
+                                        ca_certs=self.opts['sslCert'],
+                                        ssl_version=ssl.PROTOCOL_TLSv1,
+                                        cert_reqs=ssl.CERT_REQUIRED
+                                        )
             self.socket = sslSocket
         self.__sendWindowSize()
 
@@ -88,7 +92,7 @@ class Client(object):
     def __ack(self):
         self.socket.recv(1) # version. Must be received before ACK type
         atype = self.socket.recv(1)
-        ackOK = lambda x=None : False if not atype or unpack('B', atype) != 0x41 else True
+        ackOK = lambda x=None : False if not atype or unpack('B', atype)[0] != 0x41 else True
         if not ackOK():
             raise ConnectionException('ACK not recived')
         lastAck = self.socket.recv(4)
