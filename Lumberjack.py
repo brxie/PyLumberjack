@@ -18,6 +18,11 @@ class Client(object):
             'sslEnabled' : sslEnabled
         }
         self.host = self.opts['address']
+        self.WINDOW_SIZE = 500
+        self.SEQUENCE_MAX = 0x3FFFFFFFFFFFFFFF
+        self.sequence = 0
+        self.lastAck = 0
+
 
     def connect(self):
         tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,57 +33,69 @@ class Client(object):
         else:
             sslSocket = ssl.wrap_socket(sock=tcp_socket, ca_certs=self.opts['sslCert'], cert_reqs=ssl.CERT_REQUIRED)
             self.socket = sslSocket
-            
-    def write(self, elements):
         self.__sendWindowSize()
+
+    def write(self, elements):
+        self.__incSeq()
+
         payload = self.__encode(elements)
-        payload = self.__compress(payload)
+        compPayld = self.__compress(payload)
 
         # SSL and TLS channels must be segmented into records of no more than 16Kb
-        chunker = lambda payload, segSize=8192 : [payload[i:i+segSize] for i in range(0, len(payload), segSize)]
-        for segment in chunker(payload):
+        chunker = lambda pack, segSize=8192 : [pack[i:i+segSize] for i in range(0, len(pack), segSize)]
+        for segment in chunker(compPayld):
             self.socket.write(segment)
 
-        self.__ack()
+        while (self.sequence - (self.lastAck + 1)) >= self.WINDOW_SIZE:
+            self.__ack()
+
+    def __incSeq(self):
+        self.sequence += 1
+        if self.sequence > self.SEQUENCE_MAX:
+            self.sequence  = 0
 
     def __encode(self, elements):
-        frame = [0x31, 0x44, 0x00]
-        packParam = '>BBi'
+        frame = [0x31, 0x44, self.sequence]
+        packParam = '>BBI'
         frame.append( len(elements) )
-        packParam += 'i'
+        packParam += 'I'
         
         for key, value in elements.iteritems():
             keyLen = len(key)
             valLen = len(value)
             frame.append(keyLen)
-            packParam += 'i'
+            packParam += 'I'
             frame.append(key)
             packParam += str(keyLen) + 's'
             frame.append(valLen)
-            packParam += 'i'
+            packParam += 'I'
             frame.append(value)
             packParam += str(valLen) + 's'
             
         payload = pack(packParam, *frame)
         return payload
-        
+
     def __sendWindowSize(self):
-        winSize = pack('>BBi', 0x31, 0x57, 0x01)
+        winSize = pack('>BBI', 0x31, 0x57, self.WINDOW_SIZE)
         self.socket.write(winSize)
-        
+
     def __compress(self, payload):
         compPayld = zlib.compress(payload)
         compSize = ( len(compPayld) )
-        compress = pack('>BBi%ss' % compSize, 0x31, 0x43, compSize, compPayld)
+        compress = pack('>BBI%ss' % compSize, 0x31, 0x43, compSize, compPayld)
         return compress
 
     def __ack(self):
+        print "ack"
         self.socket.recv(1) # version. Must be received before ACK type
         atype = self.socket.recv(1)
-        ackOK = lambda utype : False if not atype or unpack('B', utype) != 0x41 else True
-        if not ackOK:
+        print atype
+        ackOK = lambda x=None : False if not atype or unpack('B', atype) != 0x41 else True
+        if not ackOK():
             raise ConnectionException('ACK not recived')
-        self.socket.recv(4) # last ACK. Must be received after ACK type
+        lastAck = self.socket.recv(4)
+        self.lastAck, = unpack('>I', lastAck)
+
 
 if __name__ == '__main__':
     l = Client(port = 8662,

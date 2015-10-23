@@ -11,7 +11,7 @@ Protocol details is available [here](https://github.com/elastic/logstash-forward
 ```python
 import Lumberjack
 
-lumberjack = Lumberjack.Client(address = '146.185.185.187',
+lumberjack = Lumberjack.Client(address = '127.0.0.1',
                             port = 8662,
                             sslCert = '/certs/host.crt'
                             )
