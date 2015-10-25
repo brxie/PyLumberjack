@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-sys.path.append('./../lib/')
+sys.path.append('./lib/')
 import Lumberjack
 from uuid import uuid4
 from time import sleep
@@ -16,7 +16,7 @@ class Base(unittest.TestCase):
         self.testWorkerHost = '146.185.185.187'
         self.client = Lumberjack.Client(port = 8662,
                                     address = self.testWorkerHost,
-                                    sslCert = 'host.crt',
+                                    sslCert = './tests/host.crt',
                                     )
         self.client.connect()
         self.testId = str(uuid4())
