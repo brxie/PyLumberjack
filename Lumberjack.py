@@ -10,11 +10,12 @@ class ConnectionException(Exception):
 
 class Client(object):
     
-    def __init__(self, port, address, sslCert, sslEnabled=True):
+    def __init__(self, port, address, sslCert, ackEnabled=True, sslEnabled=True):
         self.opts = {
             'port' : port,
             'address' : address,
             'sslCert' : sslCert,
+            'ackEnabled' : ackEnabled,
             'sslEnabled' : sslEnabled
         }
         self.host = self.opts['address']
@@ -50,8 +51,9 @@ class Client(object):
         for segment in chunker(compPayld):
             self.socket.write(segment)
 
-        while (self.sequence - (self.lastAck + 1)) >= self.WINDOW_SIZE:
-            self.__ack()
+        if self.opts['ackEnabled']:
+            while (self.sequence - (self.lastAck + 1)) >= self.WINDOW_SIZE:
+                self.__ack()
 
     def __incSeq(self):
         self.sequence += 1
