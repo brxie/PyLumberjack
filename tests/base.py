@@ -4,7 +4,7 @@ sys.path.append('./lib/')
 import Lumberjack
 from uuid import uuid4
 from time import sleep
-import urllib2
+import requests
 import json
 import unittest
 
@@ -28,7 +28,7 @@ class Base(unittest.TestCase):
 
     def test_verifyOutcome(self):
         sleep(10)
-        resp = urllib2.urlopen("http://%s:55555/%s.txt" % (self.testWorkerHost, self.testId) ).read()
+        resp = requests.get("http://%s:55555/%s.txt" % (self.testWorkerHost, self.testId) ).text
         messages = resp.strip().split('\n')
         for key, msg in enumerate(messages):
             try:
