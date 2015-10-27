@@ -66,16 +66,16 @@ class Client(object):
         frame.append( len(elements) )
         packParam += 'I'
         
-        for key, value in elements.iteritems():
+        for key, value in elements.items():
             keyLen = len(key)
             valLen = len(value)
             frame.append(keyLen)
             packParam += 'I'
-            frame.append(key)
+            frame.append( str.encode(key) )
             packParam += str(keyLen) + 's'
             frame.append(valLen)
             packParam += 'I'
-            frame.append(value)
+            frame.append( str.encode(value) )
             packParam += str(valLen) + 's'
             
         payload = pack(packParam, *frame)
