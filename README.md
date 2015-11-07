@@ -13,9 +13,8 @@ Protocol details is available [here](https://github.com/elastic/logstash-forward
 import Lumberjack
 
 lumberjack = Lumberjack.Client(address = '127.0.0.1',
-                            port = 8662,
-                            sslCert = '/certs/host.crt'
-                            )
+                               port = 8662,
+                               sslCert = '/certs/host.crt')
 lumberjack.connect()
 lumberjack.write({"line":"hello"})
 ```
