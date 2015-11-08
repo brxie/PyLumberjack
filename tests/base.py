@@ -13,7 +13,7 @@ import unittest
 class Base(unittest.TestCase):
 
     def setUp(self):
-        self.testWorkerHost = '146.185.185.187'
+        self.testWorkerHost = '192.81.223.90'
         self.client = Lumberjack.Client(port = 8662,
                                     address = self.testWorkerHost,
                                     sslCert = './tests/host.crt',
