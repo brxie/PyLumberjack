@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Marcin1700/PyLumberjack.svg?branch=master)](https://travis-ci.org/Marcin1700/PyLumberjack)
+[![Build Status](https://travis-ci.org/brxie/PyLumberjack.svg?branch=master)](https://travis-ci.org/Marcin1700/PyLumberjack)
 # PyLumberjack
 Lumberjack protocol implementation for Python
 
